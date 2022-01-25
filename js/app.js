@@ -38,7 +38,7 @@ class App {
     try {
       // Initialize a WebXR session using "immersive-ar".
       this.xrSession = await navigator.xr.requestSession("immersive-ar", {
-        requiredFeatures: ["hit-test", "dom-overlay"],
+        requiredFeatures: ["anchors", "hit-test", "dom-overlay"],
         domOverlay: { root: document.body }
       });
 
@@ -152,6 +152,33 @@ class App {
 
       // Render the scene with THREE.WebGLRenderer.
       this.renderer.render(this.scene, this.camera);
+    }
+
+    const tracked_anchors = frame.trackedAnchors;
+    if(tracked_anchors){
+      all_previous_anchors.forEach(anchor => {
+        if(!tracked_anchors.has(anchor)){
+          scene.removeNode(anchor.sceneObject);
+        }
+      });
+
+      tracked_anchors.forEach(anchor => {
+        const anchorPose = frame.getPose(anchor.anchorSpace, xrRefSpace);
+        if (anchorPose) {
+          anchor.context.sceneObject.matrix = anchorPose.transform.matrix;
+          anchor.context.sceneObject.visible = true;
+        } else {
+          anchor.context.sceneObject.visible = false;
+        }
+      });
+
+      all_previous_anchors = tracked_anchors;
+    } else {
+      all_previous_anchors.forEach(anchor => {
+        scene.removeNode(anchor.sceneObject);
+      });
+
+      all_previous_anchors = new Set();
     }
   }
 
