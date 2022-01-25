@@ -94,15 +94,41 @@ class App {
   /**
    * Called by the event listener for screen taps 
    */
-  onSelect = () => {
-    if (window.sunflower) {
-      const clone = window.sunflower.clone();
-      clone.position.copy(this.reticle.position);
-      this.scene.add(clone);
+  onSelect = (event) => {
+    if (!this.singleAnchor) {
+      console.debug("Creating anchor...");
+      this.singleAnchor = true;
 
-      // reposition shadow plane
-      const shadowMesh = this.scene.children.find(c => c.name === "shadowMesh");
-      shadowMesh.position.y = clone.position.y;
+      let frame = event.frame;
+      let session = frame.session;
+      let anchorPose = new XRRigidTransform();
+      let inputSource = event.inputSource;
+      frame.createAnchor(anchorPose, inputSource.targetRaySpace).then((anchor) => {
+
+        anchor.context = { "sceneObjects": [] };
+
+        // let flower = new Gltf2Node({url: 'media/gltf/sunflower/sunflower.gltf'});
+        // scene.addNode(flower);
+        // anchor.context.sceneObject = flower;
+        // flower.anchor = anchor;
+
+        if (window.sunflower) {
+          const clone = window.sunflower.clone();
+          clone.position.copy(this.reticle.position);
+          this.scene.add(clone);
+          anchor.context.sceneObjects.push(clone);
+
+          // reposition shadow plane
+          // const shadowMesh = this.scene.children.find(c => c.name === "shadowMesh");
+          // shadowMesh.position.y = clone.position.y;
+          this.singleAnchor = clone;
+        }
+        console.log("Anchor created:", anchor);
+      }, (error) => {
+        console.error("Could not create anchor: " + error);
+      });
+    } else {
+      console.log("Already have anchor: ", this.singleAnchor);
     }
   }
 
@@ -134,51 +160,42 @@ class App {
       this.camera.projectionMatrix.fromArray(view.projectionMatrix);
       this.camera.updateMatrixWorld(true);
 
-      // Perform hit test
-      const hitTestResults = frame.getHitTestResults(this.hitTestSource);
+      if (!this.singleAnchor) {
+        // Perform hit test
+        const hitTestResults = frame.getHitTestResults(this.hitTestSource);
 
-      if (!this.stabilized && hitTestResults.length > 0) {
-        this.stabilized = true;
-        document.body.classList.add("stabilized");
-      }
-      if (hitTestResults.length > 0) {
-        const hitPose = hitTestResults[0].getPose(this.localReferenceSpace);
+        if (!this.stabilized && hitTestResults.length > 0) {
+          this.stabilized = true;
+          document.body.classList.add("stabilized");
+        }
+        if (hitTestResults.length > 0) {
+          const hitPose = hitTestResults[0].getPose(this.localReferenceSpace);
 
-        // update the reticle position
-        this.reticle.visible = true;
-        this.reticle.position.set(hitPose.transform.position.x, hitPose.transform.position.y, hitPose.transform.position.z)
-        this.reticle.updateMatrixWorld(true);
+          // update the reticle position
+          this.reticle.visible = true;
+          this.reticle.position.set(hitPose.transform.position.x, hitPose.transform.position.y, hitPose.transform.position.z)
+          this.reticle.updateMatrixWorld(true);
+        }
+      } else {
+        // we already have an anchor
+        // Update the position of all the anchored objects based on the currently reported positions of their anchors
+        // const tracked_anchors = frame.trackedAnchors;
+        // if (tracked_anchors) {
+        //   console.log("tracked anchors: ", tracked_anchors.size);
+        //   tracked_anchors.forEach(anchor => {
+        //     const anchorPose = frame.getPose(anchor.anchorSpace, this.localReferenceSpace);
+        //     // if (anchorPose) {
+        //     //   anchor.context.sceneObject.matrix = anchorPose.transform.matrix;
+        //     //   anchor.context.sceneObject.visible = true;
+        //     // } else {
+        //     //   anchor.context.sceneObject.visible = false;
+        //     // }
+        //   });
+        // }
       }
 
       // Render the scene with THREE.WebGLRenderer.
       this.renderer.render(this.scene, this.camera);
-    }
-
-    const tracked_anchors = frame.trackedAnchors;
-    if(tracked_anchors){
-      all_previous_anchors.forEach(anchor => {
-        if(!tracked_anchors.has(anchor)){
-          scene.removeNode(anchor.sceneObject);
-        }
-      });
-
-      tracked_anchors.forEach(anchor => {
-        const anchorPose = frame.getPose(anchor.anchorSpace, xrRefSpace);
-        if (anchorPose) {
-          anchor.context.sceneObject.matrix = anchorPose.transform.matrix;
-          anchor.context.sceneObject.visible = true;
-        } else {
-          anchor.context.sceneObject.visible = false;
-        }
-      });
-
-      all_previous_anchors = tracked_anchors;
-    } else {
-      all_previous_anchors.forEach(anchor => {
-        scene.removeNode(anchor.sceneObject);
-      });
-
-      all_previous_anchors = new Set();
     }
   }
 
