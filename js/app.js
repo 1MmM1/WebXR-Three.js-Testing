@@ -107,11 +107,6 @@ class App {
 
         anchor.context = { "sceneObjects": [] };
 
-        // let flower = new Gltf2Node({url: 'media/gltf/sunflower/sunflower.gltf'});
-        // scene.addNode(flower);
-        // anchor.context.sceneObject = flower;
-        // flower.anchor = anchor;
-
         // add first cube
         this.singleAnchor = true;
         let geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
@@ -120,7 +115,6 @@ class App {
         cube1.geometry.translate(this.reticle.position.x, this.reticle.position.y, this.reticle.position.z);
         this.scene.add(cube1);
         anchor.context.sceneObjects.push(cube1);
-        // this.singleAnchor = cube;
 
         // add second cube
         geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
@@ -129,19 +123,6 @@ class App {
         cube2.geometry.translate(this.reticle.position.x, this.reticle.position.y, this.reticle.position.z);
         this.scene.add(cube2);
         anchor.context.sceneObjects.push(cube2);
-
-        // if (window.sunflower) {
-        //   const clone = window.sunflower.clone();
-        //   clone.position.copy(this.reticle.position);
-        //   this.scene.add(clone);
-        //   anchor.context.sceneObjects.push(clone);
-
-        //   // reposition shadow plane
-        //   // const shadowMesh = this.scene.children.find(c => c.name === "shadowMesh");
-        //   // shadowMesh.position.y = clone.position.y;
-        //   this.singleAnchor = clone;
-        // }
-        console.log("Anchor created:", anchor);
       }, (error) => {
         console.error("Could not create anchor: " + error);
       });
@@ -194,23 +175,7 @@ class App {
           this.reticle.position.set(hitPose.transform.position.x, hitPose.transform.position.y, hitPose.transform.position.z)
           this.reticle.updateMatrixWorld(true);
         }
-      } else {
-        // we already have an anchor
-        // Update the position of all the anchored objects based on the currently reported positions of their anchors
-        // const tracked_anchors = frame.trackedAnchors;
-        // if (tracked_anchors) {
-        //   console.log("tracked anchors: ", tracked_anchors.size);
-        //   tracked_anchors.forEach(anchor => {
-        //     const anchorPose = frame.getPose(anchor.anchorSpace, this.localReferenceSpace);
-        //     // if (anchorPose) {
-        //     //   anchor.context.sceneObject.matrix = anchorPose.transform.matrix;
-        //     //   anchor.context.sceneObject.visible = true;
-        //     // } else {
-        //     //   anchor.context.sceneObject.visible = false;
-        //     // }
-        //   });
-        // }
-      }
+      } 
 
       // Render the scene with THREE.WebGLRenderer.
       this.renderer.render(this.scene, this.camera);
