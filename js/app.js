@@ -112,17 +112,35 @@ class App {
         // anchor.context.sceneObject = flower;
         // flower.anchor = anchor;
 
-        if (window.sunflower) {
-          const clone = window.sunflower.clone();
-          clone.position.copy(this.reticle.position);
-          this.scene.add(clone);
-          anchor.context.sceneObjects.push(clone);
+        // add first cube
+        this.singleAnchor = true;
+        let geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+        let material = new THREE.MeshBasicMaterial({color: 0x00aa00});
+        const cube1 = new THREE.Mesh(geometry, material);
+        cube1.geometry.translate(this.reticle.position.x, this.reticle.position.y, this.reticle.position.z);
+        this.scene.add(cube1);
+        anchor.context.sceneObjects.push(cube1);
+        // this.singleAnchor = cube;
 
-          // reposition shadow plane
-          // const shadowMesh = this.scene.children.find(c => c.name === "shadowMesh");
-          // shadowMesh.position.y = clone.position.y;
-          this.singleAnchor = clone;
-        }
+        // add second cube
+        geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+        material = new THREE.MeshBasicMaterial({color: 0xaa0000});
+        const cube2 = new THREE.Mesh(geometry, material);
+        cube2.geometry.translate(this.reticle.position.x, this.reticle.position.y, this.reticle.position.z);
+        this.scene.add(cube2);
+        anchor.context.sceneObjects.push(cube2);
+
+        // if (window.sunflower) {
+        //   const clone = window.sunflower.clone();
+        //   clone.position.copy(this.reticle.position);
+        //   this.scene.add(clone);
+        //   anchor.context.sceneObjects.push(clone);
+
+        //   // reposition shadow plane
+        //   // const shadowMesh = this.scene.children.find(c => c.name === "shadowMesh");
+        //   // shadowMesh.position.y = clone.position.y;
+        //   this.singleAnchor = clone;
+        // }
         console.log("Anchor created:", anchor);
       }, (error) => {
         console.error("Could not create anchor: " + error);
