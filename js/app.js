@@ -107,28 +107,26 @@ class App {
 
         anchor.context = { "sceneObjects": [] };
 
-        // add first cube
-        this.singleAnchor = true;
-        let geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
-        let material = new THREE.MeshBasicMaterial({color: 0x00aa00});
-        const cube1 = new THREE.Mesh(geometry, material);
-        cube1.geometry.translate(this.reticle.position.x, this.reticle.position.y, this.reticle.position.z);
-        this.scene.add(cube1);
+        const cube1 = this.makeCube(this.reticle.position.x, this.reticle.position.y, this.reticle.position.z, 0.1, 0x00aa00);
+        const cube2 = this.makeCube(this.reticle.position.x, this.reticle.position.y, this.reticle.position.z, 0.1, 0xaa0000);
         anchor.context.sceneObjects.push(cube1);
-
-        // add second cube
-        geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
-        material = new THREE.MeshBasicMaterial({color: 0xaa0000});
-        const cube2 = new THREE.Mesh(geometry, material);
-        cube2.geometry.translate(this.reticle.position.x, this.reticle.position.y, this.reticle.position.z);
+        anchor.context.sceneObjects.push(cube2);        
+        this.scene.add(cube1);
         this.scene.add(cube2);
-        anchor.context.sceneObjects.push(cube2);
       }, (error) => {
         console.error("Could not create anchor: " + error);
       });
     } else {
       console.log("Already have anchor: ", this.singleAnchor);
     }
+  }
+
+  makeCube = (x, y, z, size, hexColor) => {
+    const geometry = new THREE.BoxGeometry(size, size, size);
+    const material = new THREE.MeshBasicMaterial({color: hexColor});
+    const cube = new THREE.Mesh(geometry, material);
+    cube.geometry.translate(x, y, z);
+    return cube;
   }
 
   /**
