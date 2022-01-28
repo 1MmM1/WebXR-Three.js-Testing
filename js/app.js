@@ -97,7 +97,7 @@ class App {
   onSelect = (event) => {
     if (!this.singleAnchor) {
       console.debug("Creating anchor...");
-      this.singleAnchor = true;
+      // this.singleAnchor = true;
 
       let frame = event.frame;
       let session = frame.session;
@@ -107,12 +107,22 @@ class App {
 
         anchor.context = { "sceneObjects": [] };
 
-        const cube1 = this.makeCube(this.reticle.position.x, this.reticle.position.y, this.reticle.position.z, 0.1, 0x00aa00);
-        const cube2 = this.makeCube(this.reticle.position.x, this.reticle.position.y, this.reticle.position.z, 0.1, 0xaa0000);
-        anchor.context.sceneObjects.push(cube1);
-        anchor.context.sceneObjects.push(cube2);        
-        this.scene.add(cube1);
-        this.scene.add(cube2);
+        // const cube1 = this.makeCube(this.reticle.position.x, this.reticle.position.y, this.reticle.position.z, 0.1, 0x00aa00);
+        // const cube2 = this.makeCube(this.reticle.position.x, this.reticle.position.y, this.reticle.position.z, 0.1, 0xaa0000);
+        // anchor.context.sceneObjects.push(cube1);
+        // anchor.context.sceneObjects.push(cube2);        
+        // this.scene.add(cube1);
+        // this.scene.add(cube2);
+        
+        let promises = [this.makeCube(this.reticle.position.x, this.reticle.position.y, this.reticle.position.z, 0.1, 0x00aa00),
+                        this.makeCube(this.reticle.position.x, this.reticle.position.y, this.reticle.position.z, 0.1, 0xaa0000)]
+        Promise.all(promises)
+          .then(results => {
+            for (let i = 0; i < results.length; i++) {
+              anchor.context.sceneObjects.push(results[i]);
+              this.scene.add(results[i]);
+            }
+          });
       }, (error) => {
         console.error("Could not create anchor: " + error);
       });
