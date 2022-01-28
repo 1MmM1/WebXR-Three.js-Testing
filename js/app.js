@@ -107,8 +107,8 @@ class App {
 
         anchor.context = { "sceneObjects": [] };
 
-        let promises = [this.makeCube(this.reticle.position.x, this.reticle.position.y, this.reticle.position.z, 0.1, 0x00aa00),
-                        this.makeCube(this.reticle.position.x, this.reticle.position.y, this.reticle.position.z, 0.1, 0xaa0000)]
+        let promises = [this.makeCube(this.reticle.position.x, this.reticle.position.y, this.reticle.position.z, 0.1, 0x00aa00, 501),
+                        this.makeCube(this.reticle.position.x, this.reticle.position.y, this.reticle.position.z, 0.1, 0xaa0000, 500)]
         Promise.all(promises)
           .then(results => {
             for (let i = 0; i < results.length; i++) {
@@ -124,15 +124,16 @@ class App {
     }
   }
 
-  makeCube = async (x, y, z, size, hexColor) => {
-    const geometry = new THREE.BoxGeometry(size, size, size);
-    const material = new THREE.MeshBasicMaterial({color: hexColor});
-    const cube = new THREE.Mesh(geometry, material);
-    cube.geometry.translate(x, y, z);
+  makeCube = async (x, y, z, size, hexColor, delay) => {
     return new Promise(resolve => {
         setTimeout(() => {
+          const geometry = new THREE.BoxGeometry(size, size, size);
+          const material = new THREE.MeshBasicMaterial({color: hexColor});
+          const cube = new THREE.Mesh(geometry, material);
+          cube.geometry.translate(x, y, z);
+          console.log(hexColor, Date.now());
           resolve(cube);
-        }, 500);
+        }, delay);
       });
   }
 
