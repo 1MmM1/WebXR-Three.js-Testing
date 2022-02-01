@@ -135,7 +135,6 @@ class App {
           .then(results => {
             for (let i = 0; i < results.length; i++) {
               anchor.context.sceneObjects.push(results[i]);
-              this.anchoredObjects.push(results[i]);
               this.scene.add(results[i]);
             }
             console.log("anchoredObjects:", this.anchoredObjects);
@@ -156,9 +155,7 @@ class App {
           const cube = new THREE.Mesh(geometry, material);
           cube.geometry.translate(x, y, z);
           cube.name = name;
-          // this.domEvents.addEventListener(cube, "click", (event) => {
-          //   console.log("clicked on cube: " + hexColor);
-          // });
+          this.anchoredObjects.push(cube);
           console.log(cube.name, Date.now());
           resolve(cube);
         }, delay);
@@ -243,8 +240,6 @@ class App {
     // to handle the matrices independently.
     this.camera = new THREE.PerspectiveCamera();
     this.camera.matrixAutoUpdate = false;
-
-    // this.domEvents = new THREEx.DomEvents(this.camera, this.renderer.domElement);
   }
 };
 
