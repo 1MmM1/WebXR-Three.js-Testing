@@ -89,6 +89,28 @@ class App {
 
     // Set up event listener
     this.xrSession.addEventListener("select", this.onSelect);
+    this.renderer.domElement.addEventListener("click", this.onClick);
+
+    this.anchoredObjects = [];
+  }
+
+  /**
+   * Called by the event listener for screen taps 
+   */
+  onClick = (event) => {
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    raycaster.setFromCamera(mouse, this.camera);
+
+    var intersects = raycaster.intersectObjects(this.anchoredObjects);
+    console.log("intersects:", intersects.length);
+    if (intersects.length > 0) {
+      console.log("remove first intersected object: " + intersects[0].object.name);
+      this.scene.remove(intersects[0].object);
+      intersects[0].object.visible = false;
+      const index = this.anchoredObjects.indexOf(intersects[0].object);
+      this.anchoredObjects.splice(index, 1);
+    }
   }
 
   /**
@@ -97,7 +119,7 @@ class App {
   onSelect = (event) => {
     if (!this.singleAnchor) {
       console.debug("Creating anchor...");
-      // this.singleAnchor = true;
+      this.singleAnchor = true;
 
       let frame = event.frame;
       let session = frame.session;
@@ -107,14 +129,16 @@ class App {
 
         anchor.context = { "sceneObjects": [] };
 
-        let promises = [this.makeCube(this.reticle.position.x, this.reticle.position.y, this.reticle.position.z, 0.1, 0x00aa00, 501),
-                        this.makeCube(this.reticle.position.x, this.reticle.position.y, this.reticle.position.z, 0.1, 0xaa0000, 500)]
+        let promises = [this.makeCube("cube1", this.reticle.position.x, this.reticle.position.y, this.reticle.position.z, 0.1, 0x00aa00, 500),
+                        this.makeCube("cube2", this.reticle.position.x, this.reticle.position.y, this.reticle.position.z, 0.1, 0xaa0000, 500)]
         Promise.all(promises)
           .then(results => {
             for (let i = 0; i < results.length; i++) {
               anchor.context.sceneObjects.push(results[i]);
+              this.anchoredObjects.push(results[i]);
               this.scene.add(results[i]);
             }
+            console.log("anchoredObjects:", this.anchoredObjects);
           });
       }, (error) => {
         console.error("Could not create anchor: " + error);
@@ -124,14 +148,18 @@ class App {
     }
   }
 
-  makeCube = async (x, y, z, size, hexColor, delay) => {
+  makeCube = async (name, x, y, z, size, hexColor, delay) => {
     return new Promise(resolve => {
         setTimeout(() => {
           const geometry = new THREE.BoxGeometry(size, size, size);
           const material = new THREE.MeshBasicMaterial({color: hexColor});
           const cube = new THREE.Mesh(geometry, material);
           cube.geometry.translate(x, y, z);
-          console.log(hexColor, Date.now());
+          cube.name = name;
+          // this.domEvents.addEventListener(cube, "click", (event) => {
+          //   console.log("clicked on cube: " + hexColor);
+          // });
+          console.log(cube.name, Date.now());
           resolve(cube);
         }, delay);
       });
@@ -215,6 +243,8 @@ class App {
     // to handle the matrices independently.
     this.camera = new THREE.PerspectiveCamera();
     this.camera.matrixAutoUpdate = false;
+
+    // this.domEvents = new THREEx.DomEvents(this.camera, this.renderer.domElement);
   }
 };
 
