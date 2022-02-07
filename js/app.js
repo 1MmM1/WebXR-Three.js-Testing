@@ -105,11 +105,15 @@ class App {
     var intersects = raycaster.intersectObjects(this.anchoredObjects);
     console.log("intersects:", intersects.length);
     if (intersects.length > 0) {
-      console.log("remove first intersected object: " + intersects[0].object.name);
-      this.scene.remove(intersects[0].object);
-      intersects[0].object.visible = false;
-      const index = this.anchoredObjects.indexOf(intersects[0].object);
-      this.anchoredObjects.splice(index, 1);
+      if (intersects[0].object.name != "cubeT") {
+        console.log("remove first intersected object: " + intersects[0].object.name);
+        this.scene.remove(intersects[0].object);
+        intersects[0].object.visible = false;
+        const index = this.anchoredObjects.indexOf(intersects[0].object);
+        this.anchoredObjects.splice(index, 1);
+      } else {
+        console.log("clickjacked by cubeT :(");
+      }
     }
   }
 
@@ -129,7 +133,10 @@ class App {
 
         anchor.context = { "sceneObjects": [] };
 
-        let promises = [this.makeCube("cube1", this.reticle.position.x, this.reticle.position.y, this.reticle.position.z, 0.1, 0x00aa00, 500),
+        // let promises = [this.makeCube("cube1", this.reticle.position.x, this.reticle.position.y, this.reticle.position.z, 0.1, 0x00aa00, 500),
+        //                 this.makeCube("cube2", this.reticle.position.x, this.reticle.position.y, this.reticle.position.z, 0.1, 0xaa0000, 500)]
+
+        let promises = [this.makeTransparentCube("cubeT", this.reticle.position.x, this.reticle.position.y, this.reticle.position.z, 0.1, 0x00aa00, 0, 500),
                         this.makeCube("cube2", this.reticle.position.x, this.reticle.position.y, this.reticle.position.z, 0.1, 0xaa0000, 500)]
         Promise.all(promises)
           .then(results => {
@@ -145,6 +152,21 @@ class App {
     } else {
       console.log("Already have anchor: ", this.singleAnchor);
     }
+  }
+
+  makeTransparentCube = async (name, x, y, z, size, hexColor, transparency, delay) => {
+    return new Promise(resolve => {
+        setTimeout(() => {
+          const geometry = new THREE.BoxGeometry(size, size, size);
+          const material = new THREE.MeshBasicMaterial({color: hexColor, transparent: true, opacity: transparency});
+          const cube = new THREE.Mesh(geometry, material);
+          cube.geometry.translate(x, y, z);
+          cube.name = name;
+          this.anchoredObjects.push(cube);
+          console.log(cube.name, Date.now());
+          resolve(cube);
+        }, delay);
+      });
   }
 
   makeCube = async (name, x, y, z, size, hexColor, delay) => {
