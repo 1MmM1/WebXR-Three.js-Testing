@@ -105,14 +105,10 @@ class App {
     var intersects = raycaster.intersectObjects(this.anchoredObjects);
     console.log("intersects:", intersects.length);
     if (intersects.length > 0) {
-      if (intersects[0].object.name != "cubeT") {
-        console.log("remove first intersected object: " + intersects[0].object.name);
-        this.scene.remove(intersects[0].object);
-        intersects[0].object.visible = false;
-        const index = this.anchoredObjects.indexOf(intersects[0].object);
-        this.anchoredObjects.splice(index, 1);
-      } else {
-        console.log("clickjacked by cubeT :(");
+      for (let i = 0; i < intersects.length; i++) {
+        if (intersects[i].object.associatedAction != null) {
+          intersects[i].object.associatedAction();
+        }
       }
     }
   }
@@ -129,15 +125,14 @@ class App {
       let session = frame.session;
       let anchorPose = new XRRigidTransform();
       let inputSource = event.inputSource;
+      const position = this.reticle.position;
+
       frame.createAnchor(anchorPose, inputSource.targetRaySpace).then((anchor) => {
 
         anchor.context = { "sceneObjects": [] };
 
-        // let promises = [this.makeCube("cube1", this.reticle.position.x, this.reticle.position.y, this.reticle.position.z, 0.1, 0x00aa00, 500),
-        //                 this.makeCube("cube2", this.reticle.position.x, this.reticle.position.y, this.reticle.position.z, 0.1, 0xaa0000, 500)]
-
-        let promises = [this.makeTransparentCube("cubeT", this.reticle.position.x, this.reticle.position.y, this.reticle.position.z, 0.1, 0x00aa00, 0, 500),
-                        this.makeCube("cube2", this.reticle.position.x, this.reticle.position.y, this.reticle.position.z, 0.1, 0xaa0000, 500)]
+        let promises = [this.makeCube("cube1", position.x, position.y, position.z, 0.1, 0xaa0000, null, 500),
+                        this.makeTransparentCube("cubeT", position.x, position.y, position.z, 0.1, 0x00aa00, 0, this.buyNow, 500)]
         Promise.all(promises)
           .then(results => {
             for (let i = 0; i < results.length; i++) {
@@ -154,7 +149,11 @@ class App {
     }
   }
 
-  makeTransparentCube = async (name, x, y, z, size, hexColor, transparency, delay) => {
+  buyNow = () => {
+    console.log("You just bought a new computer!");
+  }
+
+  makeTransparentCube = async (name, x, y, z, size, hexColor, transparency, action, delay) => {
     return new Promise(resolve => {
         setTimeout(() => {
           const geometry = new THREE.BoxGeometry(size, size, size);
@@ -162,6 +161,7 @@ class App {
           const cube = new THREE.Mesh(geometry, material);
           cube.geometry.translate(x, y, z);
           cube.name = name;
+          cube.associatedAction = action;
           this.anchoredObjects.push(cube);
           console.log(cube.name, Date.now());
           resolve(cube);
@@ -169,7 +169,7 @@ class App {
       });
   }
 
-  makeCube = async (name, x, y, z, size, hexColor, delay) => {
+  makeCube = async (name, x, y, z, size, hexColor, action, delay) => {
     return new Promise(resolve => {
         setTimeout(() => {
           const geometry = new THREE.BoxGeometry(size, size, size);
@@ -177,6 +177,7 @@ class App {
           const cube = new THREE.Mesh(geometry, material);
           cube.geometry.translate(x, y, z);
           cube.name = name;
+          cube.associatedAction = action;
           this.anchoredObjects.push(cube);
           console.log(cube.name, Date.now());
           resolve(cube);
