@@ -97,21 +97,21 @@ class App {
   /**
    * Called by the event listener for screen taps 
    */
-  onClick = (event) => {
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-    raycaster.setFromCamera(mouse, this.camera);
+  // onClick = (event) => {
+  //   const raycaster = new THREE.Raycaster();
+  //   const mouse = new THREE.Vector2();
+  //   raycaster.setFromCamera(mouse, this.camera);
 
-    var intersects = raycaster.intersectObjects(this.anchoredObjects);
-    console.log("intersects:", intersects.length);
-    if (intersects.length > 0) {
-      for (let i = 0; i < intersects.length; i++) {
-        if (intersects[i].object.associatedAction != null) {
-          intersects[i].object.associatedAction();
-        }
-      }
-    }
-  }
+  //   var intersects = raycaster.intersectObjects(this.anchoredObjects);
+  //   console.log("intersects:", intersects.length);
+  //   if (intersects.length > 0) {
+  //     for (let i = 0; i < intersects.length; i++) {
+  //       if (intersects[i].object.associatedAction != null) {
+  //         intersects[i].object.associatedAction();
+  //       }
+  //     }
+  //   }
+  // }
 
   /**
    * Called by the event listener for screen taps 
@@ -119,7 +119,7 @@ class App {
   onSelect = (event) => {
     if (!this.singleAnchor) {
       console.debug("Creating anchor...");
-      this.singleAnchor = true;
+      // this.singleAnchor = true;
 
       let frame = event.frame;
       let session = frame.session;
@@ -131,15 +131,15 @@ class App {
 
         anchor.context = { "sceneObjects": [] };
 
-        let promises = [this.makeCube("cube1", position.x, position.y, position.z, 0.1, 0xaa0000, null, 500),
-                        this.makeTransparentCube("cubeT", position.x, position.y, position.z, 0.1, 0x00aa00, 0, this.buyNow, 500)]
+        let promises = [this.makeCube("cube1", position.x, position.y, position.z, 0.1, 0x00aa00, null, 500),
+                        this.makeCube("cube2", position.x, position.y, position.z, 0.1, 0xaa0000, null, 500)]
         Promise.all(promises)
           .then(results => {
             for (let i = 0; i < results.length; i++) {
               anchor.context.sceneObjects.push(results[i]);
               this.scene.add(results[i]);
             }
-            console.log("anchoredObjects:", this.anchoredObjects);
+            console.log("anchoredObjects:", this.anchoredObjects.length);
           });
       }, (error) => {
         console.error("Could not create anchor: " + error);
@@ -179,7 +179,7 @@ class App {
           cube.name = name;
           cube.associatedAction = action;
           this.anchoredObjects.push(cube);
-          console.log(cube.name, Date.now());
+          // console.log(cube.name, Date.now());
           resolve(cube);
         }, delay);
       });
