@@ -100,9 +100,10 @@ class App {
    * Called by the event listener for screen taps 
    */
   onClick = (event) => {
-    // object, event, camera, clickHandler, args
-    if (this.anchoredObjects.length > 0) {
-      RayClick.handleIfClicked(this.anchoredObjects[0], event, this.camera, this.anchoredObjects[0].associatedAction, ["I'm a message"]);
+    // object, event, camera, clickHandler, args  
+    console.log("------------ new click ------------");
+    for (let i = 0; i < this.anchoredObjects.length; i++) {
+      RayClick.handleIfClicked(this.anchoredObjects[i], event, this.camera, this.anchoredObjects[i].associatedAction, [this.anchoredObjects[i].name + ": I'm a message"]);  
     }
   }
 
@@ -112,7 +113,7 @@ class App {
   onSelect = (event) => {
     if (!this.singleAnchor) {
       console.debug("Creating anchor...");
-      this.singleAnchor = true;
+      // this.singleAnchor = true;
 
       let frame = event.frame;
       let session = frame.session;
@@ -124,7 +125,7 @@ class App {
 
         anchor.context = { "sceneObjects": [] };
 
-        let promises = [this.makeCube("cube1", position.x, position.y, position.z, 0.1, 0xaa0000, (msg) => { console.log(msg); }, 500)]
+        let promises = [this.makeCube("cube1_" + Date.now(), position.x, position.y, position.z, 0.1, 0xaa0000, (msg) => { console.log(msg); }, 500)]
         Promise.all(promises)
           .then(results => {
             for (let i = 0; i < results.length; i++) {
