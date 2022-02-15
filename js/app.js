@@ -104,6 +104,7 @@ class App {
     console.log("------------ new click ------------");
     for (let i = 0; i < this.anchoredObjects.length; i++) {
       RayClick.handleIfClicked(this.anchoredObjects[i], event, this.camera, this.anchoredObjects[i].associatedAction, [this.anchoredObjects[i].name + ": I'm a message"]);  
+      console.log(this.anchoredObjects[i]);
     }
   }
 

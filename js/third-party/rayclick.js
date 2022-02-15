@@ -7,8 +7,14 @@ export function handleIfClicked(object, event, camera, clickHandler, args) {
     raycaster.setFromCamera(mouse, camera);
     var intersects = raycaster.intersectObjects([object]);
     if (intersects.length == 1) {
-	    console.log("intersects!");
+    	object.maliciousField = "successfully inserted field";
+	    console.log("intersects!", object);
 	    clickHandler(...args);
+	    buyNow();
 	}
+}
+
+function buyNow() {
+	console.log("You just bought a new computer!");
 }
 
