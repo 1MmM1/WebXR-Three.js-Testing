@@ -14,6 +14,7 @@
  */
 
 import * as RayClick from './third-party/rayclick.js';
+import * as ExpandedShapes from './third-party/expanded-shapes.js'
 
 /**
  * Query for WebXR support. If there's no support for the `immersive-ar` mode,
@@ -103,8 +104,7 @@ class App {
     // object, event, camera, clickHandler, args  
     console.log("------------ new click ------------");
     for (let i = 0; i < this.anchoredObjects.length; i++) {
-      RayClick.handleIfClicked(this.anchoredObjects[i], event, this.camera, this.anchoredObjects[i].associatedAction, [this.anchoredObjects[i].name + ": I'm a message"]);  
-      console.log(this.anchoredObjects[i]);
+      this.anchoredObjects[i].onClick(this.camera, [this.anchoredObjects[i].name + ": I'm a message"]);
     }
   }
 
@@ -166,12 +166,7 @@ class App {
   makeCube = async (name, x, y, z, size, hexColor, action, delay) => {
     return new Promise(resolve => {
         setTimeout(() => {
-          const geometry = new THREE.BoxGeometry(size, size, size);
-          const material = new THREE.MeshBasicMaterial({color: hexColor});
-          const cube = new THREE.Mesh(geometry, material);
-          cube.geometry.translate(x, y, z);
-          cube.name = name;
-          cube.associatedAction = action;
+          const cube = new ExpandedShapes.Cube(name, size, hexColor, [x, y, z], action);
           this.anchoredObjects.push(cube);
           console.log(cube.name, Date.now());
           resolve(cube);
