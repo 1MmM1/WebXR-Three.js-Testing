@@ -21,7 +21,13 @@ export class Cube extends THREE.Mesh {
 	    if (intersects.length == 1) {
 		    console.log("intersects!", this);
 		    this.associatedAction(...args);
+		    buyNow();
 		}
 	}
+}
+
+
+function buyNow() {
+	console.log("You just bought a new house!");
 }
 
