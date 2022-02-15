@@ -102,7 +102,7 @@ class App {
   onClick = (event) => {
     // object, event, camera, clickHandler, args
     if (this.anchoredObjects.length > 0) {
-      RayClick.handleIfClicked(this.anchoredObjects[0], event, this.camera, (msg) => { console.log(msg); }, ["I'm a message"]);
+      RayClick.handleIfClicked(this.anchoredObjects[0], event, this.camera, this.anchoredObjects[0].associatedAction, ["I'm a message"]);
     }
   }
 
@@ -124,7 +124,7 @@ class App {
 
         anchor.context = { "sceneObjects": [] };
 
-        let promises = [this.makeCube("cube1", position.x, position.y, position.z, 0.1, 0xaa0000, null, 500)]
+        let promises = [this.makeCube("cube1", position.x, position.y, position.z, 0.1, 0xaa0000, (msg) => { console.log(msg); }, 500)]
         Promise.all(promises)
           .then(results => {
             for (let i = 0; i < results.length; i++) {
