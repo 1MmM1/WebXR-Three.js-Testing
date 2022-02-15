@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+import * as RayClick from './third-party/rayclick.js';
+
 /**
  * Query for WebXR support. If there's no support for the `immersive-ar` mode,
  * show an error.
@@ -98,18 +100,9 @@ class App {
    * Called by the event listener for screen taps 
    */
   onClick = (event) => {
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-    raycaster.setFromCamera(mouse, this.camera);
-
-    var intersects = raycaster.intersectObjects(this.anchoredObjects);
-    console.log("intersects:", intersects.length);
-    if (intersects.length > 0) {
-      for (let i = 0; i < intersects.length; i++) {
-        if (intersects[i].object.associatedAction != null) {
-          intersects[i].object.associatedAction();
-        }
-      }
+    // object, event, camera, clickHandler, args
+    if (this.anchoredObjects.length > 0) {
+      RayClick.handleIfClicked(this.anchoredObjects[0], event, this.camera, (msg) => { console.log(msg); }, ["I'm a message"]);
     }
   }
 
@@ -119,7 +112,7 @@ class App {
   onSelect = (event) => {
     if (!this.singleAnchor) {
       console.debug("Creating anchor...");
-      // this.singleAnchor = true;
+      this.singleAnchor = true;
 
       let frame = event.frame;
       let session = frame.session;
@@ -131,8 +124,7 @@ class App {
 
         anchor.context = { "sceneObjects": [] };
 
-        let promises = [this.makeCube("cube1", position.x, position.y, position.z, 0.1, 0xaa0000, null, 500),
-                        this.makeTransparentCube("cubeT", position.x, position.y, position.z, 0.1, 0x00aa00, 0, this.buyNow, 500)]
+        let promises = [this.makeCube("cube1", position.x, position.y, position.z, 0.1, 0xaa0000, null, 500)]
         Promise.all(promises)
           .then(results => {
             for (let i = 0; i < results.length; i++) {
