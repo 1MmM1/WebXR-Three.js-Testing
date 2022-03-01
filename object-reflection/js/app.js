@@ -104,9 +104,6 @@ class App {
   onClick = (event) => {
     // object, event, camera, clickHandler, args  
     console.log("------------ new click ------------");
-    if (!this.singleAnchor) {
-    	console.log(this.scene);
-    }
   }
 
   /**
@@ -120,11 +117,11 @@ class App {
 			const cubeRenderTarget = new THREE.WebGLCubeRenderTarget( 128, { generateMipmaps: true, minFilter: THREE.LinearMipmapLinearFilter } );
 			this.mirrorCubeCamera = new THREE.CubeCamera( 0.1, 5000, cubeRenderTarget );
 			this.scene.add( this.mirrorCubeCamera );
-			const mirrorCubeMaterial = new THREE.MeshBasicMaterial( { color: 0xaa0000 } );
+			const mirrorCubeMaterial = new THREE.MeshBasicMaterial( { color: 0x00aa00 } );
 			// const mirrorCubeMaterial = new THREE.MeshBasicMaterial( { envMap: this.mirrorCubeCamera.renderTarget } );
 			this.mirrorCube = new THREE.Mesh( cubeGeom, mirrorCubeMaterial );
 			this.mirrorCube.name = "mirrorCube";
-			this.mirrorCube.geometry.translate(this.reticle.position.x, this.reticle.position.y, this.reticle.position.z);
+			this.mirrorCube.geometry.translate(this.reticle.position.x + 0.3, this.reticle.position.y, this.reticle.position.z);
 			// this.mirrorCubeCamera.position = this.mirrorCube.position;
 			this.scene.add(this.mirrorCube);	
 			
@@ -138,6 +135,7 @@ class App {
 			this.mirrorSphere.geometry.translate(this.reticle.position.x, this.reticle.position.y, this.reticle.position.z);
 			// this.mirrorSphereCamera.position = this.mirrorSphere.position;
 			this.scene.add(this.mirrorSphere);
+			this.singleAnchor = true;
     }
   }
 
