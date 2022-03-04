@@ -13,8 +13,9 @@
  * limitations under the License.
  */
 
-import * as RayClick from './third-party/rayclick.js';
-import * as ExpandedShapes from './third-party/expanded-shapes.js'
+// import * as RayClick from './third-party/rayclick.js';
+// import * as ExpandedShapes from './third-party/expanded-shapes.js';
+// import { FontLoader } from '../jsm/loaders/FontLoader.js';
 
 /**
  * Query for WebXR support. If there's no support for the `immersive-ar` mode,
@@ -173,6 +174,7 @@ class App {
           const cube = new THREE.Mesh(geometry, material);
           cube.geometry.translate(x, y, z);
           cube.name = name;
+          cube.label = this.makeCubeMarker(name, "cube object", x + 1, y, z);
           cube.associatedAction = action;
           this.anchoredObjects.push(cube);
           console.log(cube.name, Date.now());
@@ -180,6 +182,40 @@ class App {
         }, delay);
       });
   }
+
+  makeCubeMarker = (name, description, x, y, z) => {
+    const geometry = new THREE.PlaneGeometry( 1, 1 );
+    const material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
+    const plane = new THREE.Mesh( geometry, material );
+    plane.geometry.translate(x, y, z);
+    plane.name = name + "_plane";
+    this.scene.add(plane);  
+
+    const loader = new FontLoader();
+
+    loader.load( '../fonts/helvetiker_regular.typeface.json', function (font) {
+
+      // const geometry = new TextGeometry('Hello three.js!', {
+      //   font: font,
+      //   size: 80,
+      //   height: 5,
+      //   curveSegments: 12,
+      //   bevelEnabled: true,
+      //   bevelThickness: 10,
+      //   bevelSize: 8,
+      //   bevelOffset: 0,
+      //   bevelSegments: 5
+      // });
+      const textGeometry = new THREE.TextGeometry(name, {font: font, size: 80});
+      const textMaterials = [
+            new THREE.MeshPhongMaterial( { color: 0xffffff, flatShading: true } ), // front
+            new THREE.MeshPhongMaterial( { color: 0xffffff } ) // side
+          ];
+      const text = new THREE.Mesh( textGeometry, textMaterials );
+      this.scene.add(text);
+    });
+  }
+
 
   makeCube = async (name, x, y, z, size, hexColor, action, delay) => {
     return new Promise(resolve => {
