@@ -96,6 +96,7 @@ class App {
     this.renderer.domElement.addEventListener("click", this.onClick);
 
     this.anchoredObjects = [];
+    this.objectLabels = new Map();
   }
 
   /**
@@ -116,11 +117,8 @@ class App {
         toRemove++;
       }
       if (toRemove < intersects.length) {
-        console.log("remove first intersected object: ", intersects[toRemove].object);
-        this.scene.remove(intersects[toRemove].object);
-        intersects[toRemove].object.visible = false;
-        const index = this.anchoredObjects.indexOf(intersects[toRemove].object);
-        this.anchoredObjects.splice(index, 1);
+        // show or hide the label
+        this.objectLabels.get(intersects[toRemove].object.name).visible = !this.objectLabels.get(intersects[toRemove].object.name).visible;
       }
     }
   }
@@ -142,19 +140,17 @@ class App {
       frame.createAnchor(anchorPose, inputSource.targetRaySpace).then((anchor) => {
 
         anchor.context = { "sceneObjects": [] };
-        this.makeCubeMarker("cube marker", "description", position.x, position.y, position.z);
 
-        // let promises = [//this.makeTransparentCube("cubeT_" + Date.now(), position.x, position.y, position.z, 0.1, 0xaa0000, 0, (msg) => { console.log(msg); }, 500),
-        //                 this.makeCube("cube1_" + Date.now(), position.x, position.y, position.z, 0.1, 0xaa0000, (msg) => { console.log(msg); }, 500),
-        //                 this.makeTransparentCube("cubeT_" + Date.now(), position.x, position.y, position.z, 0.1, 0xaa0000, 0, (msg) => { console.log(msg); }, 500),]
-        // Promise.all(promises)
-        //   .then(results => {
-        //     for (let i = 0; i < results.length; i++) {
-        //       anchor.context.sceneObjects.push(results[i]);
-        //       this.scene.add(results[i]);
-        //     }
-        //     console.log("anchoredObjects:", this.anchoredObjects);
-        //   });
+        let promises = [this.makeTransparentCube("cubeT", position.x, position.y, position.z, 0.1, 0x000000, 0, (msg) => { console.log(msg); }, 500),
+                        this.makeCube("cube1", position.x, position.y, position.z, 0.1, 0xaa0000, (msg) => { console.log(msg); }, 500),]
+        Promise.all(promises)
+          .then(results => {
+            for (let i = 0; i < results.length; i++) {
+              anchor.context.sceneObjects.push(results[i]);
+              this.scene.add(results[i]);
+            }
+            console.log("anchoredObjects:", this.anchoredObjects);
+          });
       }, (error) => {
         console.error("Could not create anchor: " + error);
       });
@@ -175,46 +171,17 @@ class App {
           const cube = new THREE.Mesh(geometry, material);
           cube.geometry.translate(x, y, z);
           cube.name = name;
-          cube.label = this.makeCubeMarker(name, "cube object", x + 1, y, z);
           cube.associatedAction = action;
+
+          // create new label for the cube but don't add it to object list so it's not interactable
+          cube.label = this.makeCubeMarker(name, x, y + size, z, hexColor, name);
+
           this.anchoredObjects.push(cube);
           console.log(cube.name, Date.now());
           resolve(cube);
         }, delay);
       });
   }
-
-  makeCubeMarker = (name, description, x, y, z) => {
-    // const geometry = new THREE.PlaneGeometry( 1, 1 );
-    // const material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
-    // const plane = new THREE.Mesh( geometry, material );
-    // plane.geometry.translate(x, y, z);
-    // plane.name = name + "_plane";
-    // this.scene.add(plane);  
-
-    const loader = new FontLoader();
-    let text;
-    const finalScene = this.scene;
-
-    loader.load( './fonts/helvetiker_regular.typeface.json', function (font) {
-      const textGeometry = new THREE.TextGeometry(name, {
-              font: font,
-              size: 0.1,
-              height: 0.01,
-              curveSegments: 12});
-      const textMaterials = [
-            new THREE.MeshPhongMaterial( { color: 0xffffff, flatShading: true } ), // front
-            new THREE.MeshPhongMaterial( { color: 0xffffff } ) // side
-          ];
-      text = new THREE.Mesh( textGeometry, textMaterials );
-      text.geometry.translate(x, y, z);
-      text.name = name + "_label";
-      console.log(text);
-      finalScene.add(text);
-    });
-    console.log(this.scene);
-  }
-
 
   makeCube = async (name, x, y, z, size, hexColor, action, delay) => {
     return new Promise(resolve => {
@@ -224,12 +191,41 @@ class App {
           const cube = new THREE.Mesh(geometry, material);
           cube.geometry.translate(x, y, z);
           cube.name = name;
+
+          // create new label for the cube but don't add it to object list so it's not interactable
+          cube.label = this.makeCubeMarker(name, x, y + size, z, hexColor, name);
+
           this.anchoredObjects.push(cube);
           console.log(cube.name, Date.now());
           resolve(cube);
         }, delay);
       });
   }
+
+  makeCubeMarker = (name, x, y, z, hexColor, parentName) => {
+    const loader = new FontLoader();
+    const finalObjectLabels = this.objectLabels;
+    const finalScene = this.scene;
+
+    loader.load( './fonts/helvetiker_regular.typeface.json', function (font) {
+      const textGeometry = new THREE.TextGeometry(name, {
+              font: font,
+              size: 0.1,
+              height: 0.01,
+              curveSegments: 12});
+      const textMaterials = [
+            new THREE.MeshPhongMaterial( { color: hexColor, flatShading: true } ), // front
+            new THREE.MeshPhongMaterial( { color: hexColor } ) // side
+          ];
+      const text = new THREE.Mesh( textGeometry, textMaterials );
+      text.geometry.translate(x, y, z);
+      text.name = name + "_label";
+      text.visible = false;
+      finalObjectLabels.set(parentName, text);
+      finalScene.add(text);
+    });
+  }
+
 
   /**
    * Called on the XRSession's requestAnimationFrame.
