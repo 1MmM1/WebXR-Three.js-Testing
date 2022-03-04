@@ -1,10 +1,10 @@
-import {
-	FileLoader,
-	Loader,
-	ShapePath
-} from 'three';
+// import {
+// 	FileLoader,
+// 	Loader,
+// 	ShapePath
+// } from 'three';
 
-class FontLoader extends Loader {
+class FontLoader extends THREE.Loader {
 
 	constructor( manager ) {
 
@@ -16,7 +16,7 @@ class FontLoader extends Loader {
 
 		const scope = this;
 
-		const loader = new FileLoader( this.manager );
+		const loader = new THREE.FileLoader( this.manager );
 		loader.setPath( this.path );
 		loader.setRequestHeader( this.requestHeader );
 		loader.setWithCredentials( scope.withCredentials );
@@ -125,7 +125,7 @@ function createPath( char, scale, offsetX, offsetY, data ) {
 
 	}
 
-	const path = new ShapePath();
+	const path = new THREE.ShapePath();
 
 	let x, y, cpx, cpy, cpx1, cpy1, cpx2, cpy2;
 

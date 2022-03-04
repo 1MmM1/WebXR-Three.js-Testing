@@ -15,7 +15,7 @@
 
 // import * as RayClick from './third-party/rayclick.js';
 // import * as ExpandedShapes from './third-party/expanded-shapes.js';
-// import { FontLoader } from '../jsm/loaders/FontLoader.js';
+import { FontLoader } from '../jsm/loaders/FontLoader.js';
 
 /**
  * Query for WebXR support. If there's no support for the `immersive-ar` mode,
@@ -142,18 +142,19 @@ class App {
       frame.createAnchor(anchorPose, inputSource.targetRaySpace).then((anchor) => {
 
         anchor.context = { "sceneObjects": [] };
+        this.makeCubeMarker("cube marker", "description", position.x, position.y, position.z);
 
-        let promises = [//this.makeTransparentCube("cubeT_" + Date.now(), position.x, position.y, position.z, 0.1, 0xaa0000, 0, (msg) => { console.log(msg); }, 500),
-                        this.makeCube("cube1_" + Date.now(), position.x, position.y, position.z, 0.1, 0xaa0000, (msg) => { console.log(msg); }, 500),
-                        this.makeTransparentCube("cubeT_" + Date.now(), position.x, position.y, position.z, 0.1, 0xaa0000, 0, (msg) => { console.log(msg); }, 500),]
-        Promise.all(promises)
-          .then(results => {
-            for (let i = 0; i < results.length; i++) {
-              anchor.context.sceneObjects.push(results[i]);
-              this.scene.add(results[i]);
-            }
-            console.log("anchoredObjects:", this.anchoredObjects);
-          });
+        // let promises = [//this.makeTransparentCube("cubeT_" + Date.now(), position.x, position.y, position.z, 0.1, 0xaa0000, 0, (msg) => { console.log(msg); }, 500),
+        //                 this.makeCube("cube1_" + Date.now(), position.x, position.y, position.z, 0.1, 0xaa0000, (msg) => { console.log(msg); }, 500),
+        //                 this.makeTransparentCube("cubeT_" + Date.now(), position.x, position.y, position.z, 0.1, 0xaa0000, 0, (msg) => { console.log(msg); }, 500),]
+        // Promise.all(promises)
+        //   .then(results => {
+        //     for (let i = 0; i < results.length; i++) {
+        //       anchor.context.sceneObjects.push(results[i]);
+        //       this.scene.add(results[i]);
+        //     }
+        //     console.log("anchoredObjects:", this.anchoredObjects);
+        //   });
       }, (error) => {
         console.error("Could not create anchor: " + error);
       });
@@ -184,36 +185,34 @@ class App {
   }
 
   makeCubeMarker = (name, description, x, y, z) => {
-    const geometry = new THREE.PlaneGeometry( 1, 1 );
-    const material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
-    const plane = new THREE.Mesh( geometry, material );
-    plane.geometry.translate(x, y, z);
-    plane.name = name + "_plane";
-    this.scene.add(plane);  
+    // const geometry = new THREE.PlaneGeometry( 1, 1 );
+    // const material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
+    // const plane = new THREE.Mesh( geometry, material );
+    // plane.geometry.translate(x, y, z);
+    // plane.name = name + "_plane";
+    // this.scene.add(plane);  
 
     const loader = new FontLoader();
+    let text;
+    const finalScene = this.scene;
 
-    loader.load( '../fonts/helvetiker_regular.typeface.json', function (font) {
-
-      // const geometry = new TextGeometry('Hello three.js!', {
-      //   font: font,
-      //   size: 80,
-      //   height: 5,
-      //   curveSegments: 12,
-      //   bevelEnabled: true,
-      //   bevelThickness: 10,
-      //   bevelSize: 8,
-      //   bevelOffset: 0,
-      //   bevelSegments: 5
-      // });
-      const textGeometry = new THREE.TextGeometry(name, {font: font, size: 80});
+    loader.load( './fonts/helvetiker_regular.typeface.json', function (font) {
+      const textGeometry = new THREE.TextGeometry(name, {
+              font: font,
+              size: 0.1,
+              height: 0.01,
+              curveSegments: 12});
       const textMaterials = [
             new THREE.MeshPhongMaterial( { color: 0xffffff, flatShading: true } ), // front
             new THREE.MeshPhongMaterial( { color: 0xffffff } ) // side
           ];
-      const text = new THREE.Mesh( textGeometry, textMaterials );
-      this.scene.add(text);
+      text = new THREE.Mesh( textGeometry, textMaterials );
+      text.geometry.translate(x, y, z);
+      text.name = name + "_label";
+      console.log(text);
+      finalScene.add(text);
     });
+    console.log(this.scene);
   }
 
 
