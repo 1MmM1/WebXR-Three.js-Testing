@@ -51,6 +51,7 @@ class App {
       // With everything set up, start the app.
       await this.onSessionStarted();
     } catch(e) {
+      console.log(e);
       onNoXRDevice();
     }
   }
@@ -60,6 +61,7 @@ class App {
    */
   createXRCanvas() {
     this.canvas = document.createElement("canvas");
+    this.canvas.setAttribute("id", "ar-canvas");
     document.body.appendChild(this.canvas);
     this.gl = this.canvas.getContext("webgl", {xrCompatible: true});
 
@@ -78,6 +80,8 @@ class App {
 
     // To help with working with 3D on the web, we'll use three.js.
     this.setupThreeJs();
+    // document.getElementById('ar-canvas').click();
+    this.onSelect(new XRInputSourceEvent());
 
     // Setup an XRReferenceSpace using the "local" coordinate system.
     this.localReferenceSpace = await this.xrSession.requestReferenceSpace("local");
@@ -112,6 +116,7 @@ class App {
    * Called by the event listener for screen taps 
    */
   onSelect = (event) => {
+    console.log(event);
     if (!this.singleAnchor) {
       console.debug("Creating anchor...");
       // this.singleAnchor = true;

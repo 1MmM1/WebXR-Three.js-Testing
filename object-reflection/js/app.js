@@ -112,68 +112,43 @@ class App {
   onSelect = (event) => {
     console.log("------------ new select ------------");
     if (!this.singleAnchor) {
-    	const light = new THREE.DirectionalLight(0xfff0dd, 1);
-			light.position.set(this.reticle.position.x, this.reticle.position.y + 0.5, this.reticle.position.z);
-			this.scene.add(light);
-
-			const bgTexture = new THREE.TextureLoader().load("images/checkerboard.jpg");
-			const bgGeometry = new THREE.PlaneGeometry(1, 1);
-			const bgMaterial = new THREE.MeshBasicMaterial({ map: bgTexture });
-			const bgMesh = new THREE.Mesh(bgGeometry, bgMaterial);
-			bgMesh.position.set(this.reticle.position.x, this.reticle.position.y, this.reticle.position.z - 0.5);
-			this.scene.add(bgMesh);
-
     	// plane to reflect
-			// var floorTexture = new THREE.TextureLoader().load('images/checkerboard.jpg');
-			// floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
-			// floorTexture.repeat.set( 10, 10 );
-			// var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side:THREE.BackSide } );
-			// var floorGeometry = new THREE.PlaneGeometry(1, 1);
-			// var floor = new THREE.Mesh(floorGeometry, floorMaterial);
-			// floor.position.x = this.reticle.position.x;
-			// floor.position.y = this.reticle.position.y - 0.5; 
-			// floor.position.z = this.reticle.position.z;
-			// floor.rotation.x = Math.PI / 2;
-			// this.scene.add(floor);
+    	var floorTexture = new THREE.ImageUtils.loadTexture( 'images/checkerboard.jpg' );
+			floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
+			floorTexture.repeat.set( 10, 10 );
+			var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side:THREE.BackSide } );
+			var floorGeometry = new THREE.PlaneGeometry(1, 1);
+			var floor = new THREE.Mesh(floorGeometry, floorMaterial);
+			floor.position.x = this.reticle.position.x;
+			floor.position.y = this.reticle.position.y + 0.5; 
+			floor.position.z = this.reticle.position.z;
+			floor.rotation.x = Math.PI / 2;
+			this.scene.add(floor);
 
 
 	    // Mirrored cube
-			// const cubeGeom = new THREE.BoxGeometry(0.1, 0.1, 0.1);
-			// const cubeRenderTarget = new THREE.WebGLCubeRenderTarget( 128, { generateMipmaps: true, minFilter: THREE.LinearMipmapLinearFilter } );
-			// this.mirrorCubeCamera = new THREE.CubeCamera( 0.1, 5000, cubeRenderTarget );
-			// this.scene.add( this.mirrorCubeCamera );
-			// const mirrorCubeMaterial = new THREE.MeshPhongMaterial( { envMap: this.mirrorCubeCamera.renderTarget.texture } );
-			// this.mirrorCube = new THREE.Mesh( cubeGeom, mirrorCubeMaterial );
-			// this.mirrorCube.name = "mirrorCube";
-			// this.mirrorCube.geometry.translate(this.reticle.position.x + 0.3, this.reticle.position.y, this.reticle.position.z);
-			// // this.mirrorCubeCamera.position = this.mirrorCube.position;
-			// this.scene.add(this.mirrorCube);	
+			const cubeGeom = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+			const cubeRenderTarget = new THREE.WebGLCubeRenderTarget( 128, { generateMipmaps: true, minFilter: THREE.LinearMipmapLinearFilter } );
+			this.mirrorCubeCamera = new THREE.CubeCamera( 0.1, 5000, cubeRenderTarget );
+			this.scene.add( this.mirrorCubeCamera );
+			const mirrorCubeMaterial = new THREE.MeshPhongMaterial( { envMap: this.mirrorCubeCamera.renderTarget.texture } );
+			this.mirrorCube = new THREE.Mesh( cubeGeom, mirrorCubeMaterial );
+			this.mirrorCube.name = "mirrorCube";
+			this.mirrorCube.geometry.translate(this.reticle.position.x + 0.3, this.reticle.position.y, this.reticle.position.z);
+			// this.mirrorCubeCamera.position = this.mirrorCube.position;
+			this.scene.add(this.mirrorCube);	
 			
 			// Mirror sphere
-			// const sphereGeom =  new THREE.SphereGeometry( 0.1, 32, 16 ); // radius, segmentsWidth, segmentsHeight
-			// const sphereRenderTarget = new THREE.WebGLCubeRenderTarget( 128, { generateMipmaps: true, minFilter: THREE.LinearMipmapLinearFilter } );
-			// this.mirrorSphereCamera = new THREE.CubeCamera( 0.1, 5000, sphereRenderTarget );
-			// this.scene.add( this.mirrorSphereCamera );	
-			// const mirrorSphereMaterial = new THREE.MeshPhongMaterial( { envMap: this.mirrorSphereCamera.renderTarget.texture } );
-			// this.mirrorSphere = new THREE.Mesh( sphereGeom, mirrorSphereMaterial );
-			// this.mirrorSphere.name = "mirrorSphere";
-			// this.mirrorSphere.geometry.translate(this.reticle.position.x, this.reticle.position.y, this.reticle.position.z);
-			// // this.mirrorSphereCamera.position = this.mirrorSphere.position;
-			// this.scene.add(this.mirrorSphere);
-
-			const isoGeometry = new THREE.IcosahedronGeometry(0.1, 0);
-			const isoMaterial  = new THREE.MeshPhysicalMaterial({
-				color: 0x000000,
-			  metalness: 1,  
-			  roughness: 0,
-			  clearcoat: 0.3,
-			  ior: 1.2,
-			});
-			const isoMesh = new THREE.Mesh(isoGeometry, isoMaterial);
-			isoMesh.name = "mirror iso";
-			isoMesh.geometry.translate(this.reticle.position.x, this.reticle.position.y, this.reticle.position.z);
-			this.scene.add(isoMesh);
-
+			const sphereGeom =  new THREE.SphereGeometry( 0.1, 32, 16 ); // radius, segmentsWidth, segmentsHeight
+			const sphereRenderTarget = new THREE.WebGLCubeRenderTarget( 128, { generateMipmaps: true, minFilter: THREE.LinearMipmapLinearFilter } );
+			this.mirrorSphereCamera = new THREE.CubeCamera( 0.1, 5000, sphereRenderTarget );
+			this.scene.add( this.mirrorSphereCamera );	
+			const mirrorSphereMaterial = new THREE.MeshPhongMaterial( { envMap: this.mirrorSphereCamera.renderTarget.texture } );
+			this.mirrorSphere = new THREE.Mesh( sphereGeom, mirrorSphereMaterial );
+			this.mirrorSphere.name = "mirrorSphere";
+			this.mirrorSphere.geometry.translate(this.reticle.position.x, this.reticle.position.y, this.reticle.position.z);
+			// this.mirrorSphereCamera.position = this.mirrorSphere.position;
+			this.scene.add(this.mirrorSphere);
 			this.singleAnchor = true;
     }
   }
@@ -261,6 +236,9 @@ class App {
     this.scene = DemoUtils.createLitScene();
     this.reticle = new Reticle();
     this.scene.add(this.reticle);
+
+    let ambientLight = new THREE.AmbientLight( 0xcccccc, 0.5 );
+		this.scene.add( ambientLight );
 
     // We'll update the camera matrices directly from API, so
     // disable matrix auto updates so three.js doesn't attempt
