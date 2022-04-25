@@ -110,16 +110,10 @@ class App {
     var intersects = raycaster.intersectObjects(this.anchoredObjects);
     console.log("intersects:", intersects.length);
     if (intersects.length > 0) {
-      let toRemove = 0;
-      while(toRemove < intersects.length && 
-        (!intersects[toRemove].object.visible || 
-          intersects[toRemove].object.material.opacity == 0)) {
-        toRemove++;
-      }
-      if (toRemove < intersects.length) {
-        // show or hide the label
-        this.objectLabels.get(intersects[toRemove].object.name).visible = !this.objectLabels.get(intersects[toRemove].object.name).visible;
-      }
+      // show or hide the label
+      this.objectLabels.get(intersects[0].object.name).visible = !this.objectLabels.get(intersects[0].object.name).visible;
+      intersects[0].object.clickCount++;
+      console.log(intersects[0].object.name, intersects[0].object.clickCount);
     }
   }
 
@@ -136,13 +130,27 @@ class App {
       let anchorPose = new XRRigidTransform();
       let inputSource = event.inputSource;
       const position = this.reticle.position;
+      const cubeSize = 0.1;
 
       frame.createAnchor(anchorPose, inputSource.targetRaySpace).then((anchor) => {
 
         anchor.context = { "sceneObjects": [] };
 
-        let promises = [this.makeTransparentCube("cubeT", position.x, position.y, position.z, 0.1, 0x000000, 0, (msg) => { console.log(msg); }, 500),
-                        this.makeCube("cube1", position.x, position.y, position.z, 0.1, 0xaa0000, (msg) => { console.log(msg); }, 500),]
+        // first batch of cubes
+        let promises = [this.makeCube("cube1", position.x, position.y, position.z, cubeSize, 0xff0000, null, 0),
+                        this.makeCube("cube2", position.x + 2 * cubeSize, position.y, position.z, cubeSize, 0xff0000, null, 0),]
+        Promise.all(promises)
+          .then(results => {
+            for (let i = 0; i < results.length; i++) {
+              anchor.context.sceneObjects.push(results[i]);
+              this.scene.add(results[i]);
+            }
+            console.log("anchoredObjects:", this.anchoredObjects);
+          });
+
+        // second batch of cubes
+        promises = [this.makeCube("cube3", position.x, position.y, position.z, cubeSize, 0x0000ff, null, 500),
+                    this.makeCube("cube4", position.x - 2 * cubeSize, position.y, position.z, cubeSize, 0x0000ff, null, 500),]
         Promise.all(promises)
           .then(results => {
             for (let i = 0; i < results.length; i++) {
@@ -154,8 +162,6 @@ class App {
       }, (error) => {
         console.error("Could not create anchor: " + error);
       });
-    } else {
-      console.log("Already have anchor: ", this.singleAnchor);
     }
   }
 
@@ -191,6 +197,7 @@ class App {
           const cube = new THREE.Mesh(geometry, material);
           cube.geometry.translate(x, y, z);
           cube.name = name;
+          cube.clickCount = 0;
 
           // create new label for the cube but don't add it to object list so it's not interactable
           cube.label = this.makeCubeMarker(name, x, y + size, z, hexColor, name);
