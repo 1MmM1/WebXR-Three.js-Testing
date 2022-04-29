@@ -136,7 +136,8 @@ class App {
     if (intersects.length > 0) {
       const currObj = intersects[0].object;
       // show or hide the label
-      // this.objectLabels.get(intersects[0].object.name).visible = !this.objectLabels.get(intersects[0].object.name).visible;
+      this.objectLabels.get(currObj.name).visible = !this.objectLabels.get(currObj.name).visible;
+      console.log(this.objectLabels);
       currObj.clickCount++;
       this.cubeInfoAreas[currObj.name - 1].textContent = this.makeClickText(currObj.name, currObj.clickCount);
       console.log(currObj.name, currObj.clickCount);
@@ -176,16 +177,17 @@ class App {
           });
 
         // second batch of cubes
-        // promises = [this.makeCube("cube3", position.x, position.y, position.z, cubeSize, 0x0000ff, null, 500),
-        //             this.makeCube("cube4", position.x - 2 * cubeSize, position.y, position.z, cubeSize, 0x0000ff, null, 500),]
-        // Promise.all(promises)
-        //   .then(results => {
-        //     for (let i = 0; i < results.length; i++) {
-        //       anchor.context.sceneObjects.push(results[i]);
-        //       this.scene.add(results[i]);
-        //     }
-        //     console.log("anchoredObjects:", this.anchoredObjects);
-        //   });
+        let cubeSet2 = [this.makeCube(3, position.x, position.y, position.z, cubeSize, 0x0000ff, null, 2000),
+                    this.makeCube(4, position.x - 2 * cubeSize, position.y, position.z, cubeSize, 0x0000ff, null, 2000),]
+        Promise.all(cubeSet2)
+          .then(results => {
+            for (let i = 0; i < results.length; i++) {
+              this.cubeInfoAreas[i + 2].textContent = this.makeClickText(i + 3, 0);
+              anchor.context.sceneObjects.push(results[i]);
+              this.scene.add(results[i]);
+            }
+            // console.log("anchoredObjects:", this.anchoredObjects);
+          });
       }, (error) => {
         console.error("Could not create anchor: " + error);
       });
@@ -231,7 +233,7 @@ class App {
           cube.clickCount = 0;
 
           // create new label for the cube but don't add it to object list so it's not interactable
-          // cube.label = this.makeCubeMarker(name, x, y + size, z, hexColor, name);
+          cube.label = this.makeCubeMarker(name, x, y + size, z, hexColor, name);
 
           this.anchoredObjects.push(cube);
           console.log(cube.name, Date.now());
