@@ -46,6 +46,9 @@ class App {
         domOverlay: { root: document.body }
       });
 
+      // Create info box
+      this.createInfoScreen();
+
       // Create the canvas that will contain our camera's background and our virtual scene.
       this.createXRCanvas();
 
@@ -54,6 +57,25 @@ class App {
     } catch(e) {
       onNoXRDevice();
     }
+  }
+
+
+  createInfoScreen() {
+    this.infoBox = document.createElement("div");
+    this.infoBox.style.backgroundColor = "white";
+    this.infoBox.style.position = "fixed";
+    this.infoBox.style.bottom = "0";
+    document.body.appendChild(this.infoBox);
+    const label = document.createElement("P");
+    label.textContent = "Click counts";
+    this.infoBox.appendChild(label);
+    this.cubeInfoAreas = [document.createElement("P"), document.createElement("P"), document.createElement("P"), document.createElement("P")]
+    for (let i = 0; i < this.cubeInfoAreas.length; i++) {
+      this.cubeInfoAreas[i].textContent = "Cube " + (i + 1) + ": not initialized";
+      // this.cubeInfoAreas[i].appendChild(document.createTextNode("Cube " + (i + 1) + ": 0"));
+      this.infoBox.appendChild(this.cubeInfoAreas[i]);
+    }
+    console.log(this.cubeInfoAreas);
   }
 
   /**
@@ -75,7 +97,9 @@ class App {
    */
   async onSessionStarted() {
     // Add the `ar` class to our body, which will hide our 2D components
-    document.body.classList.add('ar');
+    // document.body.classList.add('ar');
+    document.getElementById("enter-ar-info").style.display = "none";
+    document.getElementById("unsupported-info").style.display = "none";
 
     // To help with working with 3D on the web, we'll use three.js.
     this.setupThreeJs();
@@ -110,10 +134,12 @@ class App {
     var intersects = raycaster.intersectObjects(this.anchoredObjects);
     console.log("intersects:", intersects.length);
     if (intersects.length > 0) {
+      const currObj = intersects[0].object;
       // show or hide the label
-      this.objectLabels.get(intersects[0].object.name).visible = !this.objectLabels.get(intersects[0].object.name).visible;
-      intersects[0].object.clickCount++;
-      console.log(intersects[0].object.name, intersects[0].object.clickCount);
+      // this.objectLabels.get(intersects[0].object.name).visible = !this.objectLabels.get(intersects[0].object.name).visible;
+      currObj.clickCount++;
+      this.cubeInfoAreas[currObj.name - 1].textContent = this.makeClickText(currObj.name, currObj.clickCount);
+      console.log(currObj.name, currObj.clickCount);
     }
   }
 
@@ -137,11 +163,12 @@ class App {
         anchor.context = { "sceneObjects": [] };
 
         // first batch of cubes
-        let promises = [this.makeCube("cube1", position.x, position.y, position.z, cubeSize, 0xff0000, null, 0),
-                        this.makeCube("cube2", position.x + 2 * cubeSize, position.y, position.z, cubeSize, 0xff0000, null, 0),]
-        Promise.all(promises)
+        let cubeSet1 = [this.makeCube(1, position.x, position.y, position.z, cubeSize, 0xff0000, null, 0),
+                        this.makeCube(2, position.x + 2 * cubeSize, position.y, position.z, cubeSize, 0xff0000, null, 0),]
+        Promise.all(cubeSet1)
           .then(results => {
             for (let i = 0; i < results.length; i++) {
+              this.cubeInfoAreas[i].textContent = this.makeClickText(i + 1, 0);
               anchor.context.sceneObjects.push(results[i]);
               this.scene.add(results[i]);
             }
@@ -149,45 +176,49 @@ class App {
           });
 
         // second batch of cubes
-        promises = [this.makeCube("cube3", position.x, position.y, position.z, cubeSize, 0x0000ff, null, 500),
-                    this.makeCube("cube4", position.x - 2 * cubeSize, position.y, position.z, cubeSize, 0x0000ff, null, 500),]
-        Promise.all(promises)
-          .then(results => {
-            for (let i = 0; i < results.length; i++) {
-              anchor.context.sceneObjects.push(results[i]);
-              this.scene.add(results[i]);
-            }
-            console.log("anchoredObjects:", this.anchoredObjects);
-          });
+        // promises = [this.makeCube("cube3", position.x, position.y, position.z, cubeSize, 0x0000ff, null, 500),
+        //             this.makeCube("cube4", position.x - 2 * cubeSize, position.y, position.z, cubeSize, 0x0000ff, null, 500),]
+        // Promise.all(promises)
+        //   .then(results => {
+        //     for (let i = 0; i < results.length; i++) {
+        //       anchor.context.sceneObjects.push(results[i]);
+        //       this.scene.add(results[i]);
+        //     }
+        //     console.log("anchoredObjects:", this.anchoredObjects);
+        //   });
       }, (error) => {
         console.error("Could not create anchor: " + error);
       });
     }
   }
 
-  buyNow = () => {
-    console.log("You just bought a new computer!");
+  makeClickText = (cubeId, clickCount) => {
+     return "Cube " + cubeId + ": " + clickCount;
   }
 
-  makeTransparentCube = async (name, x, y, z, size, hexColor, transparency, action, delay) => {
-    return new Promise(resolve => {
-        setTimeout(() => {
-          const geometry = new THREE.BoxGeometry(size, size, size);
-          const material = new THREE.MeshBasicMaterial({color: hexColor, transparent: true, opacity: transparency});
-          const cube = new THREE.Mesh(geometry, material);
-          cube.geometry.translate(x, y, z);
-          cube.name = name;
-          cube.associatedAction = action;
+  // buyNow = () => {
+  //   console.log("You just bought a new computer!");
+  // }
 
-          // create new label for the cube but don't add it to object list so it's not interactable
-          cube.label = this.makeCubeMarker(name, x, y + size, z, hexColor, name);
+  // makeTransparentCube = async (name, x, y, z, size, hexColor, transparency, action, delay) => {
+  //   return new Promise(resolve => {
+  //       setTimeout(() => {
+  //         const geometry = new THREE.BoxGeometry(size, size, size);
+  //         const material = new THREE.MeshBasicMaterial({color: hexColor, transparent: true, opacity: transparency});
+  //         const cube = new THREE.Mesh(geometry, material);
+  //         cube.geometry.translate(x, y, z);
+  //         cube.name = name;
+  //         cube.associatedAction = action;
 
-          this.anchoredObjects.push(cube);
-          console.log(cube.name, Date.now());
-          resolve(cube);
-        }, delay);
-      });
-  }
+  //         // create new label for the cube but don't add it to object list so it's not interactable
+  //         cube.label = this.makeCubeMarker(name, x, y + size, z, hexColor, name);
+
+  //         this.anchoredObjects.push(cube);
+  //         console.log(cube.name, Date.now());
+  //         resolve(cube);
+  //       }, delay);
+  //     });
+  // }
 
   makeCube = async (name, x, y, z, size, hexColor, action, delay) => {
     return new Promise(resolve => {
@@ -200,7 +231,7 @@ class App {
           cube.clickCount = 0;
 
           // create new label for the cube but don't add it to object list so it's not interactable
-          cube.label = this.makeCubeMarker(name, x, y + size, z, hexColor, name);
+          // cube.label = this.makeCubeMarker(name, x, y + size, z, hexColor, name);
 
           this.anchoredObjects.push(cube);
           console.log(cube.name, Date.now());
@@ -262,7 +293,7 @@ class App {
       this.camera.projectionMatrix.fromArray(view.projectionMatrix);
       this.camera.updateMatrixWorld(true);
 
-      if (!this.singleAnchor) {
+      // if (!this.singleAnchor) {
         // Perform hit test
         const hitTestResults = frame.getHitTestResults(this.hitTestSource);
 
@@ -278,7 +309,7 @@ class App {
           this.reticle.position.set(hitPose.transform.position.x, hitPose.transform.position.y, hitPose.transform.position.z)
           this.reticle.updateMatrixWorld(true);
         }
-      } 
+      // } 
 
       // Render the scene with THREE.WebGLRenderer.
       this.renderer.render(this.scene, this.camera);
