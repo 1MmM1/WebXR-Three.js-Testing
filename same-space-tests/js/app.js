@@ -117,7 +117,7 @@ class App {
 
     // Set up event listener
     this.xrSession.addEventListener("select", this.onSelect);
-    this.renderer.domElement.addEventListener("click", this.onClick);
+    this.renderer.domElement.addEventListener("pointerdown", this.onTouchEnd);
 
     this.anchoredObjects = [];
     this.objectLabels = new Map();
@@ -126,9 +126,9 @@ class App {
   /**
    * Called by the event listener for screen taps 
    */
-  onClick = (event) => {
+  onTouchEnd = (event) => {
     const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
+    const mouse = new THREE.Vector2(+(event.clientX / window.innerWidth) * 2 +-1, -(event.clientY / window.innerHeight) * 2 + 1);
     raycaster.setFromCamera(mouse, this.camera);
 
     var intersects = raycaster.intersectObjects(this.anchoredObjects);
@@ -137,7 +137,7 @@ class App {
       const currObj = intersects[0].object;
       // show or hide the label
       this.objectLabels.get(currObj.name).visible = !this.objectLabels.get(currObj.name).visible;
-      console.log(this.objectLabels);
+      // console.log(this.objectLabels);
       currObj.clickCount++;
       this.cubeInfoAreas[currObj.name - 1].textContent = this.makeClickText(currObj.name, currObj.clickCount);
       console.log(currObj.name, currObj.clickCount);
