@@ -30,6 +30,16 @@ import { FontLoader } from '../jsm/loaders/FontLoader.js';
   }
 })();
 
+class Location {
+  static Above = new Location('Above');
+  static Left = new Location('Left');
+  static Right = new Location('Right');
+
+  constructor(name) {
+    this.name = name
+  }
+}
+
 /**
  * Container class to manage connecting to the WebXR Device API
  * and handle rendering on every frame.
@@ -166,8 +176,8 @@ class App {
         anchor.context = { "sceneObjects": [] };
 
         // first batch of cubes
-        let cubeSet1 = [this.makeCube(1, position.x, position.y, position.z, cubeSize, 0xff0000, null, 0),
-                        this.makeCube(2, position.x + 2 * cubeSize, position.y, position.z, cubeSize, 0xff0000, null, 0),]
+        let cubeSet1 = [this.makeCube("1", position.x, position.y, position.z, cubeSize, 0xff0000, Location.Left, 0),
+                        this.makeCube("2", position.x + 2 * cubeSize, position.y, position.z, cubeSize, 0xff0000, Location.Above, 0),]
         Promise.all(cubeSet1)
           .then(results => {
             for (let i = 0; i < results.length; i++) {
@@ -179,8 +189,8 @@ class App {
           });
 
         // second batch of cubes
-        let cubeSet2 = [this.makeCube(3, position.x, position.y, position.z, cubeSize, 0x0000ff, null, 2000),
-                    this.makeCube(4, position.x - 2 * cubeSize, position.y, position.z, cubeSize, 0x0000ff, null, 2000),]
+        let cubeSet2 = [this.makeCube("3", position.x, position.y, position.z, cubeSize, 0x0000ff, Location.Right, 2000),
+                    this.makeCube("4", position.x - 2 * cubeSize, position.y, position.z, cubeSize, 0x0000ff, Location.Above, 2000),]
         Promise.all(cubeSet2)
           .then(results => {
             for (let i = 0; i < results.length; i++) {
@@ -224,7 +234,7 @@ class App {
   //     });
   // }
 
-  makeCube = async (name, x, y, z, size, hexColor, action, delay) => {
+  makeCube = async (name, x, y, z, size, hexColor, labelLocation, delay) => {
     return new Promise(resolve => {
         setTimeout(() => {
           const geometry = new THREE.BoxGeometry(size, size, size);
@@ -235,8 +245,19 @@ class App {
           cube.clickCount = 0;
 
           // create new label for the cube but don't add it to object list so it's not interactable
-          this.makeCubeMarker(name, x, y + size, z, hexColor, name);
-          // console.log(cube.label);
+          switch (labelLocation) {
+            case Location.Above:
+              this.makeCubeMarker(name, x, y + size, z, hexColor, name);
+              break;
+            case Location.Left:
+              this.makeCubeMarker(name, x + size / 2, y + size, z, hexColor, name);
+              break;
+            case Location.Right:
+              this.makeCubeMarker(name, x - size / 2, y + size, z, hexColor, name);
+              break;
+            default:
+              break;
+          }
 
           this.anchoredObjects.push(cube);
           console.log(cube.name, Date.now());
@@ -266,7 +287,6 @@ class App {
       text.visible = true;
       finalObjectLabels.set(parentName, text);
       finalScene.add(text);
-      console.log(name, text);
     });
   }
 
