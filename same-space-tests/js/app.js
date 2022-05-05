@@ -61,7 +61,8 @@ class App {
 
 
   createInfoScreen() {
-    this.infoBox = document.createElement("div");
+    // this.infoBox = document.createElement("div");
+    this.infoBox = document.getElementById("info-box");
     this.infoBox.style.backgroundColor = "white";
     this.infoBox.style.position = "fixed";
     this.infoBox.style.bottom = "0";
@@ -97,9 +98,9 @@ class App {
    */
   async onSessionStarted() {
     // Add the `ar` class to our body, which will hide our 2D components
-    // document.body.classList.add('ar');
-    document.getElementById("enter-ar-info").style.display = "none";
-    document.getElementById("unsupported-info").style.display = "none";
+    document.body.classList.add('ar');
+    // document.getElementById("enter-ar-info").style.display = "none";
+    // document.getElementById("unsupported-info").style.display = "none";
 
     // To help with working with 3D on the web, we'll use three.js.
     this.setupThreeJs();
@@ -117,7 +118,7 @@ class App {
 
     // Set up event listener
     this.xrSession.addEventListener("select", this.onSelect);
-    this.renderer.domElement.addEventListener("pointerdown", this.onTouchEnd);
+    window.addEventListener("pointerdown", this.onTouchEnd);
 
     this.anchoredObjects = [];
     this.objectLabels = new Map();
@@ -127,6 +128,7 @@ class App {
    * Called by the event listener for screen taps 
    */
   onTouchEnd = (event) => {
+    // try make raycaster a field
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2(+(event.clientX / window.innerWidth) * 2 +-1, -(event.clientY / window.innerHeight) * 2 + 1);
     raycaster.setFromCamera(mouse, this.camera);
@@ -136,7 +138,7 @@ class App {
     if (intersects.length > 0) {
       const currObj = intersects[0].object;
       // show or hide the label
-      this.objectLabels.get(currObj.name).visible = !this.objectLabels.get(currObj.name).visible;
+      // this.objectLabels.get(currObj.name).visible = !this.objectLabels.get(currObj.name).visible;
       // console.log(this.objectLabels);
       currObj.clickCount++;
       this.cubeInfoAreas[currObj.name - 1].textContent = this.makeClickText(currObj.name, currObj.clickCount);
@@ -233,7 +235,8 @@ class App {
           cube.clickCount = 0;
 
           // create new label for the cube but don't add it to object list so it's not interactable
-          cube.label = this.makeCubeMarker(name, x, y + size, z, hexColor, name);
+          this.makeCubeMarker(name, x, y + size, z, hexColor, name);
+          // console.log(cube.label);
 
           this.anchoredObjects.push(cube);
           console.log(cube.name, Date.now());
@@ -243,7 +246,7 @@ class App {
   }
 
   makeCubeMarker = (name, x, y, z, hexColor, parentName) => {
-    const loader = new FontLoader();
+    const loader = new THREE.FontLoader();
     const finalObjectLabels = this.objectLabels;
     const finalScene = this.scene;
 
@@ -260,9 +263,10 @@ class App {
       const text = new THREE.Mesh( textGeometry, textMaterials );
       text.geometry.translate(x, y, z);
       text.name = name + "_label";
-      text.visible = false;
+      text.visible = true;
       finalObjectLabels.set(parentName, text);
       finalScene.add(text);
+      console.log(name, text);
     });
   }
 
