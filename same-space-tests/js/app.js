@@ -176,7 +176,18 @@ class App {
         anchor.context = { "sceneObjects": [] };
 
         // first batch of cubes
-        let cubeSet1 = [this.makeCube("1", position.x, position.y, position.z, cubeSize, 0xff0000, Location.Left, 0),
+        this.componentA(anchor, position, cubeSize);
+
+        // second batch of cubes
+        this.componentB(anchor, position, cubeSize);
+      }, (error) => {
+        console.error("Could not create anchor: " + error);
+      });
+    }
+  }
+
+  componentA = (anchor, position, cubeSize) => {
+    let cubeSet1 = [this.makeCube("1", position.x, position.y, position.z, cubeSize, 0xff0000, Location.Left, 0),
                         this.makeCube("2", position.x + 2 * cubeSize, position.y, position.z, cubeSize, 0xff0000, Location.Above, 0),]
         Promise.all(cubeSet1)
           .then(results => {
@@ -187,9 +198,10 @@ class App {
             }
             console.log("anchoredObjects:", this.anchoredObjects);
           });
+  }
 
-        // second batch of cubes
-        let cubeSet2 = [this.makeCube("3", position.x, position.y, position.z, cubeSize, 0x0000ff, Location.Right, 2000),
+  componentB = (anchor, position, cubeSize) => {
+    let cubeSet2 = [this.makeCube("3", position.x, position.y, position.z, cubeSize, 0x0000ff, Location.Right, 2000),
                     this.makeCube("4", position.x - 2 * cubeSize, position.y, position.z, cubeSize, 0x0000ff, Location.Above, 2000),]
         Promise.all(cubeSet2)
           .then(results => {
@@ -200,10 +212,6 @@ class App {
             }
             // console.log("anchoredObjects:", this.anchoredObjects);
           });
-      }, (error) => {
-        console.error("Could not create anchor: " + error);
-      });
-    }
   }
 
   makeClickText = (cubeId, clickCount) => {
