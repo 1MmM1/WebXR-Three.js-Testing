@@ -298,6 +298,33 @@ class App {
     });
   }
 
+  onYesClick = (event) => {
+      // After 3 seconds, remove the show class from DIV
+      var x = document.getElementById("snackbar");
+      x.className = "";
+      this.removeObjectByName("Cube 2 Mesh");
+      this.wallPlaced = false;
+  }
+
+  onNoClick = (event) => {
+    alert("ERROR");
+    // After 3 seconds, remove the show class from DIV
+    var x = document.getElementById("snackbar");
+    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+  }
+
+  onNextClick = (event) => {
+    this.removeObjectByName("Cube 2 Mesh");
+    this.shouldDisplayTransparentCube = true;
+    this.transparencyType ++;
+    if (this.transparencyType > 3) {
+      var next = document.getElementById("nextButton")
+      next.style.visibility = 'hidden';
+      var x = document.getElementById("snackbar");
+      x.className = "";
+
+    }
+  }
 
   /**
    * Called on the XRSession's requestAnimationFrame.
@@ -350,6 +377,20 @@ class App {
     }
   }
 
+  showToast = (content) => { //You can change the default value
+    // Get the snackbar DIV
+    var x = document.getElementById("snackbar");
+    
+    //Change the text (not mandatory, but I think you might be willing to do it)
+    x.innerHTML = content;
+  
+    // Add the "show" class to DIV
+    x.className = "show";
+  
+    // After 3 seconds, remove the show class from DIV
+    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+  }
+
   /**
    * Initialize three.js specific rendering code, including a WebGLRenderer,
    * a demo scene, and a camera for viewing the 3D content.
@@ -377,6 +418,14 @@ class App {
     // to handle the matrices independently.
     this.camera = new THREE.PerspectiveCamera();
     this.camera.matrixAutoUpdate = false;
+
+    var yes = document.getElementById("yesButton");
+    yes.addEventListener("click", this.onYesClick);
+    var no = document.getElementById("noButton");
+    no.addEventListener("click", this.onNoClick);
+    var next = document.getElementById("nextButton");
+    next.style.visibility = 'hidden';
+    next.addEventListener("click", this.onNextClick);
   }
 };
 
