@@ -16,6 +16,7 @@
 // import * as RayClick from './third-party/rayclick.js';
 // import * as ExpandedShapes from './third-party/expanded-shapes.js';
 import { FontLoader } from '../jsm/loaders/FontLoader.js';
+import { ARComponent, ComponentA, ComponentB } from './components.js';
 
 /**
  * Query for WebXR support. If there's no support for the `immersive-ar` mode,
