@@ -16,7 +16,7 @@
 // import * as RayClick from './third-party/rayclick.js';
 // import * as ExpandedShapes from './third-party/expanded-shapes.js';
 import { FontLoader } from '../jsm/loaders/FontLoader.js';
-import { ARComponent, ComponentA, ComponentB } from './components.js';
+// import { ARComponent, ComponentA, ComponentB } from './components.js';
 
 /**
  * Query for WebXR support. If there's no support for the `immersive-ar` mode,
@@ -40,6 +40,32 @@ class Location {
     this.name = name
   }
 }
+
+// class ARComponent {
+//   launch() {}
+//   next(experimentNum) {}
+// }
+
+// class ComponentA extends ARComponent {
+//   launch() {
+
+//   }
+//   next(experimentNum) {
+
+//   }
+// }
+
+// class ComponentB extends ARComponent {
+//   launch() {
+
+//   }
+//   next(experimentNum) {
+
+//   }
+// }
+
+// anchorNode = null;
+
 
 /**
  * Container class to manage connecting to the WebXR Device API
@@ -188,31 +214,50 @@ class App {
   }
 
   componentA = (anchor, position, cubeSize) => {
-    let cubeSet1 = [this.makeCube("1", position.x, position.y, position.z, cubeSize, 0xff0000, Location.Left, 0),
-                        this.makeCube("2", position.x + 2 * cubeSize, position.y, position.z, cubeSize, 0xff0000, Location.Above, 0),]
-        Promise.all(cubeSet1)
-          .then(results => {
-            for (let i = 0; i < results.length; i++) {
-              this.cubeInfoAreas[i].textContent = this.makeClickText(i + 1, 0);
-              anchor.context.sceneObjects.push(results[i]);
-              this.scene.add(results[i]);
-            }
-            console.log("anchoredObjects:", this.anchoredObjects);
-          });
+    // let cubeSet1 = [this.makeCube("1", position.x, position.y, position.z, cubeSize, 0xff0000, Location.Left, 0),
+    //                     this.makeCube("2", position.x + 2 * cubeSize, position.y, position.z, cubeSize, 0xff0000, Location.Above, 0),]
+    // Promise.all(cubeSet1)
+    //   .then(results => {
+    //     for (let i = 0; i < results.length; i++) {
+    //       this.cubeInfoAreas[i].textContent = this.makeClickText(i + 1, 0);
+    //       anchor.context.sceneObjects.push(results[i]);
+    //       this.scene.add(results[i]);
+    //     }
+    //     console.log("anchoredObjects:", this.anchoredObjects);
+    //   });
+    let cube1 = this.makeCube("1", position.x, position.y, position.z, cubeSize, 0xff0000, Location.Left, 0);
+    this.cubeInfoAreas[0].textContent = this.makeClickText(1, 0);
+    anchor.context.sceneObjects.push(cube1);
+    this.scene.add(cube1);
+
+    let cube2 = this.makeCube("2", position.x + 2 * cubeSize, position.y, position.z, cubeSize, 0xff0000, Location.Above, 0);
+    this.cubeInfoAreas[1].textContent = this.makeClickText(2, 0);
+    anchor.context.sceneObjects.push(cube2);
+    this.scene.add(cube2);
   }
 
   componentB = (anchor, position, cubeSize) => {
-    let cubeSet2 = [this.makeCube("3", position.x, position.y, position.z, cubeSize, 0x0000ff, Location.Right, 2000),
-                    this.makeCube("4", position.x - 2 * cubeSize, position.y, position.z, cubeSize, 0x0000ff, Location.Above, 2000),]
-        Promise.all(cubeSet2)
-          .then(results => {
-            for (let i = 0; i < results.length; i++) {
-              this.cubeInfoAreas[i + 2].textContent = this.makeClickText(i + 3, 0);
-              anchor.context.sceneObjects.push(results[i]);
-              this.scene.add(results[i]);
-            }
-            // console.log("anchoredObjects:", this.anchoredObjects);
-          });
+    // let cubeSet2 = [this.makeCube("3", position.x, position.y, position.z, cubeSize, 0x0000ff, Location.Right, 2000),
+    //                 this.makeCube("4", position.x - 2 * cubeSize, position.y, position.z, cubeSize, 0x0000ff, Location.Above, 2000),]
+    // Promise.all(cubeSet2)
+    //   .then(results => {
+    //     for (let i = 0; i < results.length; i++) {
+    //       this.cubeInfoAreas[i + 2].textContent = this.makeClickText(i + 3, 0);
+    //       anchor.context.sceneObjects.push(results[i]);
+    //       this.scene.add(results[i]);
+    //     }
+    //     // console.log("anchoredObjects:", this.anchoredObjects);
+    //   });
+
+    let cube3 = this.makeCube("3", position.x, position.y, position.z, cubeSize, 0x0000ff, Location.Right, 2000)
+    this.cubeInfoAreas[2].textContent = this.makeClickText(3, 0);
+    anchor.context.sceneObjects.push(cube3);
+    this.scene.add(cube3);
+
+    let cube4 = this.makeCube("4", position.x - 2 * cubeSize, position.y, position.z, cubeSize, 0x0000ff, Location.Above, 2000)
+    this.cubeInfoAreas[3].textContent = this.makeClickText(4, 0);
+    anchor.context.sceneObjects.push(cube4);
+    this.scene.add(cube4);
   }
 
   makeClickText = (cubeId, clickCount) => {
@@ -243,36 +288,32 @@ class App {
   //     });
   // }
 
-  makeCube = async (name, x, y, z, size, hexColor, labelLocation, delay) => {
-    return new Promise(resolve => {
-        setTimeout(() => {
-          const geometry = new THREE.BoxGeometry(size, size, size);
-          const material = new THREE.MeshBasicMaterial({color: hexColor});
-          const cube = new THREE.Mesh(geometry, material);
-          cube.geometry.translate(x, y, z);
-          cube.name = name;
-          cube.clickCount = 0;
+  makeCube = (name, x, y, z, size, hexColor, labelLocation, delay) => {
+    const geometry = new THREE.BoxGeometry(size, size, size);
+    const material = new THREE.MeshBasicMaterial({color: hexColor});
+    const cube = new THREE.Mesh(geometry, material);
+    cube.geometry.translate(x, y, z);
+    cube.name = name;
+    cube.clickCount = 0;
 
-          // create new label for the cube but don't add it to object list so it's not interactable
-          switch (labelLocation) {
-            case Location.Above:
-              this.makeCubeMarker(name, x, y + size, z, hexColor, name);
-              break;
-            case Location.Left:
-              this.makeCubeMarker(name, x + size / 2, y + size, z, hexColor, name);
-              break;
-            case Location.Right:
-              this.makeCubeMarker(name, x - size / 2, y + size, z, hexColor, name);
-              break;
-            default:
-              break;
-          }
+    // create new label for the cube but don't add it to object list so it's not interactable
+    switch (labelLocation) {
+      case Location.Above:
+        this.makeCubeMarker(name, x, y + size, z, hexColor, name);
+        break;
+      case Location.Left:
+        this.makeCubeMarker(name, x + size / 2, y + size, z, hexColor, name);
+        break;
+      case Location.Right:
+        this.makeCubeMarker(name, x - size / 2, y + size, z, hexColor, name);
+        break;
+      default:
+        break;
+    }
 
-          this.anchoredObjects.push(cube);
-          console.log(cube.name, Date.now());
-          resolve(cube);
-        }, delay);
-      });
+    this.anchoredObjects.push(cube);
+    console.log(cube.name, Date.now());
+    return cube;
   }
 
   makeCubeMarker = (name, x, y, z, hexColor, parentName) => {
